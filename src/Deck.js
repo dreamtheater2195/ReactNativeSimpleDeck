@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Animated, PanResponder, Dimensions } from 'react-native';
+import { View, StyleSheet, Animated, PanResponder, Dimensions, LayoutAnimation, UIManager } from 'react-native';
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.25;
@@ -35,6 +35,17 @@ class Deck extends Component {
             position,
             currentIndex: 0
         };
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.data !== this.props.data) {
+            this.setState({ index: 0 })
+        }
+    }
+
+    componentWillUpdate() {
+        UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
+        LayoutAnimation.spring();
     }
 
     forceSwipe(direction) {
@@ -90,9 +101,11 @@ class Deck extends Component {
                 )
             }
             return (
-                <View key={item.id} style={styles.cardStyle}>
+                <Animated.View
+                    key={item.id}
+                    style={[styles.cardStyle, { top: 10 * (index - this.state.currentIndex) }]}>
                     {this.props.renderCard(item)}
-                </View>
+                </Animated.View>
             )
         }).reverse();
     }
